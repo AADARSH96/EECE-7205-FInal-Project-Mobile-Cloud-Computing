@@ -152,7 +152,8 @@ def process_test_case(graph, core_speed):
 
 
 def print_results(df_task_core_table):
-    print(tabulate(df_task_core_table, headers=columns))
+    print(tabulate(df_task_core_table, headers=["core_speed", "successors", "predecessors", "core",
+                                             "T_re", "weight", "type", "core_assigned", "priority"]))
     print(f"{'*' * 225}")
 
 
