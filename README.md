@@ -6,3 +6,5 @@ Presented by
 Xue Lin, Yanzhi Wang, Qing Xie, Massoud Pedram
 
 Department of Electrical Engineering University of Southern California, Los Angeles, U.S.
+
+Refer to https://github.com/AADARSH96/EECE-7205-FInal-Project-Mobile-Cloud-Computing/wiki for documentation
