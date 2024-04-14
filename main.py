@@ -6,6 +6,7 @@ from execution import execution_unit_selection, new_execution_unit_selection
 from time_energy import calculate_time, calculate_energy
 from tabulate import tabulate
 from plot import draw_schedule
+import matplotlib.pyplot as plt
 
 n_cores = 3
 T_send = 3
@@ -74,10 +75,23 @@ def process_test_case(graph, core_speed):
                           "wr_ft": initial_task_core_table[task]["wr_rt"] + initial_task_core_table[task]["T_re"][2]})
         else:
             tasks.append({"node id": task, "assignment": initial_task_core_table[task]["core_assigned"] + 1,
-                          "l_st": initial_task_core_table[task]["start_time"][initial_task_core_table[task]["core_assigned"]],
-                          "l_ft": initial_task_core_table[task]["start_time"][initial_task_core_table[task]["core_assigned"]] +
-                                  initial_task_core_table[task]["core_speed"][initial_task_core_table[task]["core_assigned"]]})
+                          "l_st": initial_task_core_table[task]["start_time"][
+                              initial_task_core_table[task]["core_assigned"]],
+                          "l_ft": initial_task_core_table[task]["start_time"][
+                                      initial_task_core_table[task]["core_assigned"]] +
+                                  initial_task_core_table[task]["core_speed"][
+                                      initial_task_core_table[task]["core_assigned"]]})
 
+    # Total time and energy at the end of initial scheduling
+    initial_time = calculate_time(initial_task_core_table)
+    initial_energy = calculate_energy(initial_task_core_table)
+    print(f"INITIAL TIME: {initial_time} | INITIAL ENERGY: {initial_energy}")
+    print()
+    df_task_core_table = pd.DataFrame.from_dict(initial_task_core_table, orient='index')
+    df_task_core_table.columns = columns
+    df_task_core_table = df_task_core_table[["core_speed", "successors", "predecessors", "core",
+                                             "T_re", "weight", "type", "core_assigned", "priority"]]
+    print_results(df_task_core_table)
     draw_schedule(tasks)
     new_task_core_table = {}
     for task in range(1, nodes + 1):
@@ -124,14 +138,17 @@ def process_test_case(graph, core_speed):
             tasks.append({"node id": task, "assignment": new_task_core_table[task]["core_assigned"] + 1,
                           "l_st": new_task_core_table[task]["start_time"][new_task_core_table[task]["core_assigned"]],
                           "l_ft": new_task_core_table[task]["start_time"][new_task_core_table[task]["core_assigned"]] +
-                          new_task_core_table[task]["core_speed"][new_task_core_table[task]["core_assigned"]]})
-    draw_schedule(tasks)
-    # Total time and energy at the end of initial scheduling
-    initial_time = calculate_time(initial_task_core_table)
-    initial_energy = calculate_energy(initial_task_core_table)
+                                  new_task_core_table[task]["core_speed"][new_task_core_table[task]["core_assigned"]]})
     new_time = calculate_time(new_task_core_table)
     new_energy = calculate_energy(new_task_core_table)
-    return initial_task_core_table, initial_core_seqs, tasks, initial_time, initial_energy, new_task_core_table, new_core_seqs, new_time, new_energy
+    print(f"NEW TIME: {new_time} | NEW ENERGY: {new_energy}")
+    print()
+    df_task_core_table = pd.DataFrame.from_dict(new_task_core_table, orient='index')
+    df_task_core_table.columns = columns
+    df_task_core_table = df_task_core_table[["core_speed", "successors", "predecessors", "core",
+                                             "T_re", "weight", "type", "core_assigned", "priority"]]
+    print_results(df_task_core_table)
+    draw_schedule(tasks)
 
 
 def print_results(df_task_core_table):
@@ -205,20 +222,7 @@ def main():
         graph = create_graph(test_cases[test][0])
         core_speed = test_cases[test][1]
 
-        initial_task_core_table, initial_core_seqs, tasks, initial_time, initial_energy, new_task_core_table, new_core_seqs, new_time, new_energy = process_test_case(
-            graph, core_speed)
-
-        print(f"INITIAL TIME: {initial_time} | INITIAL ENERGY: {initial_energy}")
-        print()
-        df_task_core_table = pd.DataFrame.from_dict(initial_task_core_table, orient='index')
-        df_task_core_table.columns = columns
-        print_results(df_task_core_table)
-
-        print(f"NEW TIME: {new_time} | NEW ENERGY: {new_energy}")
-        print()
-        df_task_core_table = pd.DataFrame.from_dict(new_task_core_table, orient='index')
-        df_task_core_table.columns = columns
-        print_results(df_task_core_table)
+        process_test_case( graph, core_speed)
 
 
 if __name__ == "__main__":
