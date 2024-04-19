@@ -25,7 +25,7 @@ def create_graph(edges):
     return graph
 
 
-def process_test_case(graph, core_speed):
+def process_test_case(test_case, graph, core_speed):
     nodes = len(graph.nodes)
     successors = {node: list(graph.successors(node)) for node in graph.nodes}
     predecessors = {node: list(graph.predecessors(node)) for node in graph.nodes}
@@ -149,12 +149,16 @@ def process_test_case(graph, core_speed):
                                              "T_re", "weight", "type", "core_assigned", "priority"]]
     print_results(df_task_core_table)
     draw_schedule(tasks)
+    task_info = {
+        f"TEST_CASE_{test_case}": {"initial_time": initial_time, "initial_energy": initial_energy, "new_time": new_time,
+                                   "new_energy": new_energy}}
+    return pd.DataFrame.from_dict(task_info, orient='index')
 
 
 def print_results(df_task_core_table):
     print(tabulate(df_task_core_table, headers=["core_speed", "successors", "predecessors", "core",
-                                             "T_re", "weight", "type", "core_assigned", "priority"]))
-    print(f"{'*' * 225}")
+                                                "T_re", "weight", "type", "core_assigned", "priority"]))
+    print(f"{'*' * 115}")
 
 
 def main():
@@ -218,13 +222,15 @@ def main():
         ]
     ]
 
+    task_df = pd.DataFrame()
     for test in range(5):
         print(f"TEST_CASE {test + 1}:")
         graph = create_graph(test_cases[test][0])
         core_speed = test_cases[test][1]
-
-        process_test_case( graph, core_speed)
+        temp_df = process_test_case(test + 1, graph, core_speed)
+        task_df = pd.concat([task_df, temp_df])
+    return task_df
 
 
 if __name__ == "__main__":
-    main()
+    task_df = main()
