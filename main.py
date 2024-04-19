@@ -5,7 +5,7 @@ from priority import task_prioritization
 from execution import execution_unit_selection, new_execution_unit_selection
 from time_energy import calculate_time, calculate_energy
 from tabulate import tabulate
-from plot import draw_schedule
+from plot import plot_schedule
 
 n_cores = 3
 T_send = 3
@@ -91,7 +91,7 @@ def process_test_case(test_case, graph, core_speed):
     df_task_core_table = df_task_core_table[["core_speed", "successors", "predecessors", "core",
                                              "T_re", "weight", "type", "core_assigned", "priority"]]
     print_results(df_task_core_table)
-    draw_schedule(tasks)
+    plot_schedule(tasks)
     new_task_core_table = {}
     for task in range(1, nodes + 1):
         new_task_core_table[task] = {
@@ -147,7 +147,7 @@ def process_test_case(test_case, graph, core_speed):
     df_task_core_table = df_task_core_table[["core_speed", "successors", "predecessors", "core",
                                              "T_re", "weight", "type", "core_assigned", "priority"]]
     print_results(df_task_core_table)
-    draw_schedule(tasks)
+    plot_schedule(tasks)
     task_info = {
         f"TEST_CASE_{test_case}": {"initial_time": initial_time, "initial_energy": initial_energy, "new_time": new_time,
                                    "new_energy": new_energy}}

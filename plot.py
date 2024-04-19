@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def draw_schedule(tasks):
+def plot_schedule(tasks):
     # Define the y-axis for different cores and cloud processes
     y_axis = {
         "Core 1": 6,
@@ -58,7 +58,6 @@ def draw_schedule(tasks):
 
     # Set labels and grid
     ax.set_xlabel("Time")
-    ax.grid(False)
     ax.set_xticks(np.arange(0, max_finish_time + 2, 1))
     ax.set_xlim(0, max_finish_time + 2)
 
