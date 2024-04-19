@@ -2,18 +2,10 @@ from pprint import pprint
 
 
 def execution_unit_selection(n_cores, task_core_table):
-    n = len(task_core_table.keys())  # Number of nodes for iteration
+    cores = [[],[],[],[]]
 
-    # Initialize sequences for each core and the cloud.
-    core1_seq = []
-    core2_seq = []
-    core3_seq = []
-    cloud_seq = []
-
-    # Track the earliest ready time for each core and the cloud.
     core_ready = [0] * (n_cores + 1)
-    # Schedule each node based on priority.
-    for task, info in task_core_table.items():  # Iterate in reverse order.
+    for task, info in task_core_table.items():
         # Calculate ready times and finish times for each node.
         if task_core_table[task]["type"] == "entry":  # If the node has no parents, it can start immediately.
             min_load_core = core_ready.index(min(core_ready))
@@ -83,41 +75,27 @@ def execution_unit_selection(n_cores, task_core_table):
                 task_core_table[task]["start_time"][3] = task_core_table[task]["ws_rt"]
                 task_core_table[task]["core_assigned"] = 3  # Assign to cloud
                 task_core_table[task]["core"] = "Cloud"
-        if task_core_table[task]["core_assigned"] == 0:
-            core1_seq.append(task)
-        elif task_core_table[task]["core_assigned"] == 1:
-            core2_seq.append(task)
-        elif task_core_table[task]["core_assigned"] == 2:
-            core3_seq.append(task)
-        elif task_core_table[task]["core_assigned"] == 3:
-            cloud_seq.append(task)
-    seq = [core1_seq, core2_seq, core3_seq, cloud_seq]
-    return seq, task_core_table
+
+        cores[task_core_table[task]["core_assigned"]].append(task)
+    return cores, task_core_table
 
 
 def new_execution_unit_selection(n_cores, task_core_table):
-    n = len(task_core_table.keys())  # Number of nodes for iteration
     entry_tasks = [task for task, info in task_core_table.items() if info['type'] == 'entry']
     # Initialize sequences for each core and the cloud.
-    core1_seq = []
-    core2_seq = []
-    core3_seq = []
-    cloud_seq = []
+    cores = [[],[],[],[]]
 
-    # Track the earliest ready time for each core and the cloud.
     core_ready = [0] * (n_cores + 1)
-    # Schedule each node based on priority.
     for task, info in task_core_table.items():  # Iterate in reverse order.
         # Calculate ready times and finish times for each node.
-        if task_core_table[task]["type"] == "entry":  # If the node has no parents, it can start immediately.
+        if task_core_table[task]["type"] == "entry":
             min_load_core = core_ready.index(min(core_ready))
-            # Schedule the parentless node on the earliest available resource
             task_core_table[task]["l_rt"] = core_ready[min_load_core]
             task_core_table[task]["ws_rt"] = core_ready[min_load_core]
             task_core_table[task]["ws_ft"] = task_core_table[task]["ws_rt"] + task_core_table[task]["T_re"][0]
             task_core_table[task]["c_rt"] = task_core_table[task]["ws_ft"]
             core_ready[min_load_core] = task_core_table[task]["c_rt"]
-        else:  # If the node has parents, calculate its ready time based on their finish times.
+        else:
             # Calculations for local and cloud ready times.
             task_core_table[task]["l_rt"] = max(
                 [max(task_core_table[predecessor]["l_ft"], task_core_table[predecessor]["wr_ft"]) for predecessor in
@@ -147,10 +125,10 @@ def new_execution_unit_selection(n_cores, task_core_table):
                 task_core_table[task]["l_ft"] = 0
                 core_ready[3] = task_core_table[task]["ws_ft"]
                 task_core_table[task]["start_time"][3] = task_core_table[task]["ws_rt"]
-                task_core_table[task]["core_assigned"] = 3  # Assign to cloud
+                task_core_table[task]["core_assigned"] = 3
                 task_core_table[task]["core"] = "Cloud"
             elif (len(entry_tasks) > 1) or (task_core_table[task]["type"] != "entry"):
-                task_core_table[task]["ws_rt"] = task_core_table[cloud_seq[-1]]["ws_ft"]
+                task_core_table[task]["ws_rt"] = task_core_table[cores[3][-1]]["ws_ft"]
                 task_core_table[task]["ws_ft"] = task_core_table[task]["ws_rt"] + task_core_table[task]["T_re"][0]
                 task_core_table[task]["c_rt"] = task_core_table[task]["ws_ft"]
                 task_core_table[task]["c_ft"] = task_core_table[task]["ws_ft"] + task_core_table[task]["T_re"][1]
@@ -160,7 +138,7 @@ def new_execution_unit_selection(n_cores, task_core_table):
                 task_core_table[task]["l_ft"] = 0
                 core_ready[3] = task_core_table[task]["ws_ft"]
                 task_core_table[task]["start_time"][3] = task_core_table[task]["ws_rt"]
-                task_core_table[task]["core_assigned"] = 3  # Assign to cloud
+                task_core_table[task]["core_assigned"] = 3
                 task_core_table[task]["core"] = "Cloud"
         else:
             # Find the most suitable core for scheduling.
@@ -195,10 +173,10 @@ def new_execution_unit_selection(n_cores, task_core_table):
                     task_core_table[task]["l_ft"] = 0
                     core_ready[3] = task_core_table[task]["ws_ft"]
                     task_core_table[task]["start_time"][3] = task_core_table[task]["ws_rt"]
-                    task_core_table[task]["core_assigned"] = 3  # Assign to cloud
+                    task_core_table[task]["core_assigned"] = 3
                     task_core_table[task]["core"] = "Cloud"
                 elif (len(entry_tasks) > 1) or (task_core_table[task]["type"] != "entry"):
-                    task_core_table[task]["ws_rt"] = task_core_table[cloud_seq[-1]]["ws_ft"]
+                    task_core_table[task]["ws_rt"] = task_core_table[cores[3][-1]]["ws_ft"]
                     task_core_table[task]["ws_ft"] = task_core_table[task]["ws_rt"] + task_core_table[task]["T_re"][0]
                     task_core_table[task]["c_rt"] = task_core_table[task]["ws_ft"]
                     task_core_table[task]["c_ft"] = task_core_table[task]["ws_ft"] + task_core_table[task]["T_re"][1]
@@ -208,15 +186,7 @@ def new_execution_unit_selection(n_cores, task_core_table):
                     task_core_table[task]["l_ft"] = 0
                     core_ready[3] = task_core_table[task]["ws_ft"]
                     task_core_table[task]["start_time"][3] = task_core_table[task]["ws_rt"]
-                    task_core_table[task]["core_assigned"] = 3  # Assign to cloud
+                    task_core_table[task]["core_assigned"] = 3
                     task_core_table[task]["core"] = "Cloud"
-        if task_core_table[task]["core_assigned"] == 0:
-            core1_seq.append(task)
-        elif task_core_table[task]["core_assigned"] == 1:
-            core2_seq.append(task)
-        elif task_core_table[task]["core_assigned"] == 2:
-            core3_seq.append(task)
-        elif task_core_table[task]["core_assigned"] == 3:
-            cloud_seq.append(task)
-    seq = [core1_seq, core2_seq, core3_seq, cloud_seq]
-    return seq, task_core_table
+        cores[task_core_table[task]["core_assigned"]].append(task)
+    return cores, task_core_table

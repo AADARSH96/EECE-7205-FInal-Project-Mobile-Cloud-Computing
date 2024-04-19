@@ -6,7 +6,6 @@ from execution import execution_unit_selection, new_execution_unit_selection
 from time_energy import calculate_time, calculate_energy
 from tabulate import tabulate
 from plot import draw_schedule
-import matplotlib.pyplot as plt
 
 n_cores = 3
 T_send = 3
