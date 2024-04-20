@@ -24,3 +24,5 @@ Department of Electrical Engineering University of Southern California, Los Ange
 
       time_energy.py - has the code for calculating time and energy
       Functions - calculate_time, calculate_energy
+
+Run main.py to execute the code
